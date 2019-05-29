@@ -19,7 +19,9 @@ router.post('/', (req, res) => {
     });
 });
 
-router.post('/:id/posts', validateUserId, (req, res) => {});
+router.post('/:id/posts', validateUserId, (req, res) => {
+  // userDb.getUserPosts(req.params.id).then()
+});
 
 router.get('/', (req, res) => {
   userDb
@@ -34,7 +36,22 @@ router.get('/', (req, res) => {
 
 router.get('/:id', (req, res) => {});
 
-router.get('/:id/posts', (req, res) => {});
+router.get('/:id/posts', (req, res) => {
+  userDb
+    .getUserPosts(req.params.id)
+    .then(posts => {
+      if (posts.length > 0) {
+        res.status(200).json(posts);
+      } else {
+        res
+          .status(404)
+          .json({ error: 'A user with that specified id does not exist' });
+      }
+    })
+    .catch(err => {
+      res.status(500).json({ error: 'asdasdf' });
+    });
+});
 
 router.delete('/:id', (req, res) => {});
 
