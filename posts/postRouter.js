@@ -13,7 +13,7 @@ router.get('/', (req, res) => {
     });
 });
 
-router.get('/:id', (req, res) => {
+router.get('/:id', validatePostId, (req, res) => {
   postDb
     .getById(req.params.id)
     .then(posts => {
@@ -24,25 +24,26 @@ router.get('/:id', (req, res) => {
     });
 });
 
-router.delete('/:id', (req, res) => {
+router.delete('/:id', validatePostId, (req, res) => {
   postDb
     .remove(req.params.id)
-    .get(deletedPost => {
+    .then(deletedPost => {
       res.status(200).json(deletedPost);
     })
     .catch(err => {
-      res.status(500).json({ error: 'unable to to delete ost' });
+      res.status(500).json({ error: 'unable to to delete post' });
     });
 });
 
-router.put('/:id', (req, res) => {
+router.put('/:id', validatePostId, (req, res) => {
+  const text = req.body;
   postDb
-    .update(req.params.id)
+    .update(req.params.id, text)
     .then(updatedPost => {
       res.status(200).json(updatedPost);
     })
     .catch(error => {
-      res.status(500).json({ error: 'A post with that id could not be found' });
+      res.status(500).json({ error: 'Error updating post' });
     });
 });
 
