@@ -1,12 +1,12 @@
 const express = require('express');
 
 const userDb = require('./userDb.js');
+const postDb = require('../posts/postDb');
 
 const router = express.Router();
 
 router.post('/', (req, res) => {
   const user = req.body;
-
   userDb
     .insert(user)
     .then(user => {
@@ -19,8 +19,30 @@ router.post('/', (req, res) => {
     });
 });
 
-router.post('/:id/posts', validateUserId, (req, res) => {
-  // userDb.getUserPosts(req.params.id).then()
+router.post('/:id/posts', (req, res) => {
+  let post = req.body;
+  const id = req.params.id;
+  post.user_id = id;
+
+  if (!post.text) {
+    res.status(404).json({
+      message: 'Please provide text for the post',
+    });
+  } else {
+    postDb
+      .insert(post)
+      .then(post => {
+        res.status(201).json(post);
+      })
+      .catch(err => {
+        res.status(500).json({
+          error: 'There was an error while saving the post to the database',
+        });
+      });
+  }
+  // userDb.getUserPosts(userPosts)
+  //   .then(userPosts => {
+  //   })
 });
 
 router.get('/', (req, res) => {
@@ -34,7 +56,18 @@ router.get('/', (req, res) => {
     });
 });
 
-router.get('/:id', (req, res) => {});
+router.get('/:id', (req, res) => {
+  userDb
+    .getById(req.params.id)
+    .then(user => {
+      res.status(200).json(user);
+    })
+    .catch(err => {
+      res
+        .status(500)
+        .json({ error: 'A user with that specified ID does not exist' });
+    });
+});
 
 router.get('/:id/posts', (req, res) => {
   userDb
